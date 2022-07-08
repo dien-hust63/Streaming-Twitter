@@ -34,6 +34,7 @@ class TweetListener(tweepy.StreamingClient):
         logging.info("LOGGING")
         logging.info(raw_data)
         producer.send(topic_name, value=raw_data)
+        print(raw_data)
         return True
 
     def on_error(self, status_code):
@@ -47,7 +48,7 @@ class TweetListener(tweepy.StreamingClient):
         print("start")
         self.add_rules(tweepy.StreamRule(search_term))
         print("filter")
-        self.filter()
+        self.filter(tweet_fields=["created_at"])
 
 
 # Press the green button in the gutter to run the script.
