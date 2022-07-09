@@ -89,8 +89,8 @@ if __name__ == "__main__":
         .config("spark.mongodb.output.uri",
             "mongodb://localhost:27017/twitter-bigdata.test") \
         .getOrCreate()
-    print("********spark********")
-    print(spark)
+    # print("********spark********")
+    # print(spark)
     print("*******COLUMNS*******")
     df = spark \
         .readStream \
@@ -100,14 +100,26 @@ if __name__ == "__main__":
         .load()
     print("COLUMNS:", df.columns)
     print("=============")
-    mySchema = StructType([StructField("text", StringType(), True)])
+    mySchema = StructType([StructField("data", StringType(), True)])
     # Get only the "text" from the information we receive from Kafka. The text is the tweet produce by a user
     values = df.select(from_json(df.value.cast("string"), mySchema).alias("tweet"))
 
     df1 = values.select("tweet.*")
+
+    # schema = StructType([
+    #     StructType([
+    #         StructField("text",StringType(),True),
+    #     ]),
+    # ])
+
+    # struct = StructType(
+    #     [StructField("text", StringType(), True)]
+    #     )
+    # v = df1.select(from_json(df1.data.cast("string"), struct).alias("id"))
+    # df2 = v.select("id")
     clean_tweets = F.udf(cleanTweet, StringType())
     
-    raw_tweets = df1.withColumn('processed_text', clean_tweets(col("text")))
+    raw_tweets = df1.withColumn('processed_text', clean_tweets(col("data")))
     # udf_stripDQ = udf(stripDQ, StringType())
 
     
@@ -124,16 +136,16 @@ if __name__ == "__main__":
     all about tokenization
     '''
     # Create a tokenizer that Filter away tokens with length < 3, and get rid of symbols like $,#,...
-    tokenizer = RegexTokenizer().setPattern("[\\W_]+").setMinTokenLength(3).setInputCol("processed_text").setOutputCol("tokens")
+    # tokenizer = RegexTokenizer().setPattern("[\\W_]+").setMinTokenLength(3).setInputCol("processed_text").setOutputCol("tokens")
 
     print("11111111111111")
     # Tokenize tweets
-    tokenized_tweets = tokenizer.transform(raw_tweets)
+    # tokenized_tweets = tokenizer.transform(raw_tweets)
     print("22222222222222")
 
     # en sortie on a
-    tweets_df = df1.withColumn('word', explode(split(col("text"), ' '))).groupby('word').count().sort('count', ascending=False).filter(
-        col('word').contains('#'))
+    # tweets_df = df1.withColumn('word', explode(split(col("text"), ' '))).groupby('word').count().sort('count', ascending=False).filter(
+    #     col('word').contains('#'))
 
     print("33333333333333")
 

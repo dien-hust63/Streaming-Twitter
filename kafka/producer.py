@@ -48,7 +48,8 @@ class TweetListener(tweepy.StreamingClient):
         print("start")
         self.add_rules(tweepy.StreamRule(search_term))
         print("filter")
-        self.filter(tweet_fields=["created_at"])
+        # self.filter(tweet_fields=["created_at"])
+        self.filter()
 
 
 # Press the green button in the gutter to run the script.
