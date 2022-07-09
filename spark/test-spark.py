@@ -36,7 +36,7 @@ print("*******************")
 query = df.selectExpr("CAST(value AS STRING)") \
     .writeStream \
     .format("console") \
-    .option("checkpointLocation", "path/to/HDFS/dir") \
+    .option("checkpointLocation", "checkpoints") \
     .start()
 
 query.awaitTermination()
