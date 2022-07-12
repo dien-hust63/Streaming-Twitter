@@ -86,8 +86,8 @@ if __name__ == "__main__":
         .builder \
         .appName("TwitterSentimentAnalysis") \
         .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.1.2,org.mongodb.spark:mongo-spark-connector_2.12:3.0.0") \
-        .config("spark.mongodb.input.uri","mongodb://localhost:27017/test.test")\
-        .config("spark.mongodb.output.uri","mongodb://localhost:27017/test.test")\
+        .config("spark.mongodb.input.uri","mongodb+srv://teambigdata:bigdata@bigdata.fleu5ff.mongodb.net/test.test")\
+        .config("spark.mongodb.output.uri","mongodb+srv://teambigdata:bigdata@bigdata.fleu5ff.mongodb.net/test.test")\
         .getOrCreate()
 
     print("*******COLUMNS*******")
