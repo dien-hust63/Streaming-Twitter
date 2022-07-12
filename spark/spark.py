@@ -102,7 +102,10 @@ if __name__ == "__main__":
 
     mySchema = StructType([StructField("data", StringType(), True)])
     schema = StructType([
-            StructField("data", StructType([StructField("text",StringType(),True),]),True),
+            StructField("data", StructType([
+                StructField("text",StringType(),True),
+                StructField("created_at",StringType(),True)
+            ]),True),
         ])
 
     values = df.select(from_json(df.value.cast("string"), schema).alias("tweet"))
@@ -113,7 +116,7 @@ if __name__ == "__main__":
         
     clean_tweets = F.udf(cleanTweet, StringType())
     
-    raw_tweets = df1.withColumn('processed_text', clean_tweets(col("data.text")))
+    raw_tweets = df1.withColumn('processed_text', clean_tweets(col("data.text"))).withColumn('created_at', col("data.created_at"))
     subjectivity = F.udf(getSubjectivity, StringType())
     polarity = F.udf(getPolarity, StringType())
     sentiment = F.udf(getSentiment, StringType())
