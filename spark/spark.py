@@ -4,6 +4,7 @@
 # import findspark
 # findspark.init('/Users/lorenapersonel/Downloads/spark-3.2.1-bin-hadoop3.2-scala2.13')
 
+from ast import Str
 from pyspark.sql import functions as F
 from pyspark.sql.functions import explode
 from pyspark.sql.functions import split
@@ -42,19 +43,19 @@ def cleanTweet(tweet: str) -> str:
 
 
 # Create a function to get the subjectifvity
-def getSubjectivity(tweet: str) -> float:
-    return TextBlob(tweet).sentiment.subjectivity
+def getSubjectivity(tweet: str) -> str:
+    return str(TextBlob(tweet).sentiment.subjectivity)
 
 
 # Create a function to get the polarity
-def getPolarity(tweet: str) -> float:
-    return TextBlob(tweet).sentiment.polarity
+def getPolarity(tweet: str) -> str:
+    return str(TextBlob(tweet).sentiment.polarity)
 
 
-def getSentiment(polarityValue: int) -> str:
-    if polarityValue < 0:
+def getSentiment(polarityValue: str) -> str:
+    if float(polarityValue) < 0.0:
         return 'Negative'
-    elif polarityValue == 0:
+    elif float(polarityValue) == 0.0:
         return 'Neutral'
     else:
         return 'Positive'
@@ -64,8 +65,9 @@ def getSentiment(polarityValue: int) -> str:
 def write_row_in_mongo(df, dd):
     print("***********MONGO************")
     print(df.show())
-    mongoURL = "mongodb://localhost:27017/twitter-bigdata.test"
-    # df.write.format("mongo").mode("append").option("uri", mongoURL).save()
+    print(df.printSchema())
+    # mongoURL = "mongodb://localhost:27017/twitter-bigdata.test"
+    df.write.format("com.mongodb.spark.sql.DefaultSource").mode("append").save()
     pass
 
 
@@ -83,11 +85,9 @@ if __name__ == "__main__":
     spark = SparkSession \
         .builder \
         .appName("TwitterSentimentAnalysis") \
-        .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.1.2") \
-        .config("spark.mongodb.input.uri",
-            "mongodb://localhost:27017/twitter-bigdata.test") \
-        .config("spark.mongodb.output.uri",
-            "mongodb://localhost:27017/twitter-bigdata.test") \
+        .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.1.2,org.mongodb.spark:mongo-spark-connector_2.12:3.0.0") \
+        .config("spark.mongodb.input.uri","mongodb://localhost:27017/test.test")\
+        .config("spark.mongodb.output.uri","mongodb://localhost:27017/test.test")\
         .getOrCreate()
 
     print("*******COLUMNS*******")
@@ -114,8 +114,8 @@ if __name__ == "__main__":
     clean_tweets = F.udf(cleanTweet, StringType())
     
     raw_tweets = df1.withColumn('processed_text', clean_tweets(col("data.text")))
-    subjectivity = F.udf(getSubjectivity, FloatType())
-    polarity = F.udf(getPolarity, FloatType())
+    subjectivity = F.udf(getSubjectivity, StringType())
+    polarity = F.udf(getPolarity, StringType())
     sentiment = F.udf(getSentiment, StringType())
 
     subjectivity_tweets = raw_tweets.withColumn('subjectivity', subjectivity(col("processed_text")))
