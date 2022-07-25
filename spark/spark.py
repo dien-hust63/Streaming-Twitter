@@ -63,23 +63,11 @@ def getSentiment(polarityValue: str) -> str:
 
 # epoch
 def write_row_in_mongo(df, dd):
-    print("***********MONGO************")
     print(df.show())
     print(df.printSchema())
-    # mongoURL = "mongodb://localhost:27017/twitter-bigdata.test"
     df.write.format("com.mongodb.spark.sql.DefaultSource").mode("append").save()
     pass
 
-
-'''
-.config("spark.mongodb.input.uri",
-            "mongodb://localhost:27017/twitter-bigdata.test"
-            "?retryWrites=true&w=majority") \
-        .config("spark.mongodb.output.uri",
-                        "mongodb://localhost:27017/twitter-bigdata.test"
-                        "?retryWrites=true&w=majority") \
-        .config("spark.jars.packages", "org.mongodb.spark:mongo-spark-connector-10.0:3.0.1") \
-'''
 
 if __name__ == "__main__":
     spark = SparkSession \
